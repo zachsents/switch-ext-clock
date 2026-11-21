@@ -3,7 +3,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
 import { Context, Effect, Layer, Queue, Ref, Schema } from "effect"
-import { AppEvents, defineApp, defineEvent, SWITCH_CATALOG, tool } from "spur-kit"
+import { AppEvents, defineApp, defineEvent, SWITCH_CATALOG, tool } from "switch-ext-kit"
 
 import { parseDuration } from "./duration.ts"
 

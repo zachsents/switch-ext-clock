@@ -1,6 +1,6 @@
 // The clock as a stdio MCP server. State in $CLOCK_STATE, else clock.json in its folder.
 import path from "node:path"
-import { serveStdio } from "spur-kit"
+import { serveStdio } from "switch-ext-kit"
 
 import { clockApp, Clocks } from "./app.ts"
 
