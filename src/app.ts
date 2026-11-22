@@ -3,7 +3,14 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
 import { Context, Effect, Layer, Queue, Ref, Schema } from "effect"
-import { AppEvents, defineApp, defineEvent, SWITCH_CATALOG, tool } from "switch-ext-kit"
+import {
+  AppEvents,
+  BASIC_CATALOG,
+  defineApp,
+  defineEvent,
+  SWITCH_CATALOG,
+  tool,
+} from "switch-ext-kit"
 
 import { parseDuration } from "./duration.ts"
 
@@ -301,7 +308,8 @@ export const clockApp = defineApp<Clocks>({
       },
       tool: "state",
       refresh: [Changed.type],
-      // A line per clock, in Switch's catalog: its mark, its name, its time running live.
+      // A line per clock, Switch's Line in a List from A2UI's basic catalog: its mark, its name, its
+      // time running live.
       a2ui: () => [
         { version: "1.0", createSurface: { surfaceId: "timers", catalogId: SWITCH_CATALOG } },
         {
@@ -311,7 +319,8 @@ export const clockApp = defineApp<Clocks>({
             components: [
               {
                 id: "root",
-                component: "Lines",
+                component: "List",
+                catalogId: BASIC_CATALOG,
                 children: { componentId: "line", path: "/clocks" },
               },
               {
