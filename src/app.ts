@@ -1,7 +1,6 @@
 // Stopwatches with laps, and countdown timers that chime when they run out. Wall-clock times, so
 // they keep time while the app is closed.
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
-import path from "node:path"
+import { readFileSync } from "node:fs"
 import { Context, Effect, Layer, Queue, Ref, Schema } from "effect"
 import {
   AppEvents,
@@ -10,6 +9,7 @@ import {
   defineEvent,
   SWITCH_CATALOG,
   tool,
+  writeFileAtomic,
 } from "switch-ext-kit"
 
 import { parseDuration } from "./duration.ts"
@@ -135,8 +135,7 @@ export class Clocks extends Context.Service<
           Effect.gen(function* committing() {
             yield* Ref.set(ref, next)
             yield* Effect.sync(() => {
-              mkdirSync(path.dirname(file), { recursive: true })
-              writeFileSync(file, JSON.stringify(next))
+              writeFileAtomic(file, JSON.stringify(next))
             })
             yield* Effect.orDie(events.emit(Changed.make({ change, clock: changed })))
             yield* Queue.offer(wake, true)
