@@ -1,3 +1,5 @@
+**Moved to [zachsents/switch](https://github.com/zachsents/switch/tree/main/extensions/clock).** This repo is archived.
+
 # switch-ext-clock
 
 Timers and stopwatches: start, pause, lap and chime, kept by wall-clock time so they run while nothing's open. Its widget lists them in Home.
