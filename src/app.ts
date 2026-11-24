@@ -40,6 +40,25 @@ export const Changed = defineEvent(
 )
 type Change = (typeof Changed.payload.Type)["change"]
 
+/** Every this often, as its manifest's `heartbeat` promises. */
+const BEAT = 5 * 60_000
+
+/** How it is, beaten by the alarms' layer, so it stops when that does. */
+export const Heartbeat = defineEvent(
+  "clock.heartbeat",
+  1,
+  Schema.Struct({
+    entity: Schema.Literal("sense:clock"),
+    summary: Schema.String,
+    facts: Schema.Struct({
+      failing: Schema.NullOr(Schema.String),
+      clocks: Schema.Finite,
+      running: Schema.Finite,
+      ringing: Schema.Finite,
+    }),
+  }),
+)
+
 /** One change to a clock: what it becomes (null: deleted) and what to call it, or null for none. */
 type Step = (c: Clock, now: number) => readonly [Clock | null, Change] | null
 
@@ -196,6 +215,24 @@ export class Clocks extends Context.Service<
           ),
         )
 
+        const beat = Effect.gen(function* beating() {
+          const { clocks } = yield* Ref.get(ref)
+          const running = clocks.filter((c) => c.runningSince !== null).length
+          const ringing = clocks.filter((c) => c.ringing).length
+          yield* events.emit(
+            Heartbeat.make({
+              entity: "sense:clock",
+              summary: `${clocks.length} clocks, ${running} running`,
+              facts: { failing: null, clocks: clocks.length, running, ringing },
+            }),
+          )
+        })
+        yield* Effect.forkScoped(
+          Effect.forever(
+            Effect.andThen(Effect.ignore(beat, { log: "Warn" }), Effect.sleep(`${BEAT} millis`)),
+          ),
+        )
+
         return { read: Ref.get(ref), change, add }
       }),
     )
@@ -292,7 +329,7 @@ export const clockApp = defineApp<Clocks>({
   version: "1",
   instructions: "Stopwatches and timers on this computer. A timer chimes when it runs out.",
   tools: [stateTool, create, toggle, lap, resetTool, remove],
-  events: [Changed],
+  events: [Changed, Heartbeat],
   widgets: [
     {
       name: "timers",

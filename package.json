@@ -30,6 +30,7 @@
   "extension": {
     "name": "clock",
     "main": "src/main.ts",
+    "heartbeat": 300000,
     "widgets": [
       "timers"
     ]
